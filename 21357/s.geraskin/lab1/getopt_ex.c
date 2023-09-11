@@ -54,6 +54,7 @@ int main(int argc, char *argv[]){
                 if (errno != 0 || new_U_limit < 0) {
                     fprintf(stderr, "Invalid new ulimit value: %s\n", u_arg);
                 }
+
                 struct rlimit U_limit;
                 if (getrlimit(RLIMIT_FSIZE, &U_limit) == 0) {
                     U_limit.rlim_cur = (rlim_t) new_U_limit;
