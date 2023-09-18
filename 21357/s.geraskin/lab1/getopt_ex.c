@@ -15,24 +15,24 @@ int main(int argc, char *argv[]){
     printf("argc equals %d\n", argc);
     while ((c = getopt(argc, argv, options)) != EOF){
         switch (c){
-            case 'i':
+            case 'i':;
                 printf("Real user id: %d\n", getuid());
                 printf("Effective user id: %d\n", geteuid());
                 printf("Real group id: %d\n", getgid());
                 printf("Effective group id %d\n", getegid());
                 break;
 
-            case 's':
+            case 's':;
                 setpgid(0, 0);
                 break;
 
-            case 'p':
+            case 'p':;
                 printf("Process id: %d\n", getpid());
                 printf("Parent process id: %d\n", getppid());
                 printf("Process group id: %d\n", getpgrp());
                 break;
 
-            case 'u':
+            case 'u':;
                 struct rlimit u_limit;
                 if (getrlimit(RLIMIT_FSIZE, &u_limit) == 0) {
                     if (u_limit.rlim_cur == RLIM_INFINITY) {
@@ -47,7 +47,7 @@ int main(int argc, char *argv[]){
                 }
                 break;
 
-            case 'U':
+            case 'U':;
                 errno = 0;
                 char* u_arg = optarg;
                 long new_U_limit = atol(optarg);
@@ -67,7 +67,7 @@ int main(int argc, char *argv[]){
                 }
                 break;
 
-            case 'c':
+            case 'c':;
                 struct rlimit c_limit;
                 if (getrlimit(RLIMIT_CORE, &c_limit) == 0) {
                     printf("Core file size limit: %ld\n", c_limit.rlim_cur);
@@ -77,7 +77,7 @@ int main(int argc, char *argv[]){
                 }
                 break;
 
-            case 'C':
+            case 'C':;
                 errno = 0;
                 char* c_arg = optarg;
                 long new_C_limit = atol(c_arg);
@@ -98,9 +98,9 @@ int main(int argc, char *argv[]){
                 }
                 break;
 
-            case 'd':
-                char buf[256];
-                char *dir = getcwd(buf, 256);
+            case 'd':;
+                char buf[512];
+                char *dir = getcwd(buf, 512);
                 if (dir) {
                     printf("%s\n", dir);
                 }
@@ -109,17 +109,17 @@ int main(int argc, char *argv[]){
                 }
                 break;
 
-            case 'v':
+            case 'v':;
                 for (char **env = environ; *env; ++env){
                     printf("%s\n", *env);
                 }
 
-            case 'V':
+            case 'V':;
                 char* v_arg = optarg;
                 if (putenv(v_arg) != 0){
                     perror("cannot putenv");
                 }
-            default:
+            default:;
                 perror("unknown option");
         }
     }
