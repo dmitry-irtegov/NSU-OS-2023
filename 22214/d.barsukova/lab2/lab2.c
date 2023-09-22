@@ -10,7 +10,6 @@ int main()
     struct tm* sp;
 
     putenv("TZ=America/Los_Angeles");
-
     (void) time( &now );
 
     sp = localtime(&now);
