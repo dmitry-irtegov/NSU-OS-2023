@@ -2,7 +2,7 @@
 #include <time.h>
 #include <stdlib.h>
 
-void main()
+int  main()
 {
     time_t current_time;
     struct tm *local_time;
@@ -16,4 +16,6 @@ void main()
     printf("Time in California: %s\n", asctime(local_time));
 
     unsetenv("TZ");
+
+    return 0;
 }
