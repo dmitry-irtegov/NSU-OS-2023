@@ -38,9 +38,12 @@ int main(int argc, char *argv[]){
                     if (u_limit.rlim_cur == RLIM_INFINITY) {
                         printf("ulimit: unlimited\n");
                     }
-                    else {
+                    else if(sizeof(long) >= sizeof(u_limit.rlim_cur)) {
                         printf("ulimit: %ld\n", u_limit.rlim_cur);
                     }
+		    else{
+			printf("ulimit: %lld\n", u_limit.rlim_cur);
+		    }
                 }
                 else {
                     perror("cannot get ulimit");
