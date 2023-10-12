@@ -13,8 +13,7 @@ int main(int argc, char *argv[]) {
         case 0:
         {
             execvp(argv[1], argv + 1);
-            //  If execvp() is successful, we should not reach this next line.
-            return 127;
+            return 0;
         }
         default:
         {
