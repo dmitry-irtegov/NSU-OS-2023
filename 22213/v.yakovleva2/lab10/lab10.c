@@ -9,11 +9,12 @@ int main(int argc, char *argv[]) {
 
     pid_t pid = fork();
     switch (pid) {
-        case -1: return 1;
+        case -1: return -1;
         case 0:
         {
             execvp(argv[1], argv + 1);
-            return 1;
+            //  If execvp() is successful, we should not reach this next line.
+            return 127;
         }
         default:
         {
