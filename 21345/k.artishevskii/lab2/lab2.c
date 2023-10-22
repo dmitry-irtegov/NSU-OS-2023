@@ -18,4 +18,8 @@ int main(int argc, char* argv[])
                 sp->tm_year - 100, sp->tm_hour,
                 sp->tm_min, tzname[sp->tm_isdst]);
         return 0;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 137a7888b926d0775f46dc6bbbbc35c1589a21ae
