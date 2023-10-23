@@ -12,7 +12,6 @@ typedef struct Node {
 Node* createNode() {
     Node* node = (Node*)malloc(1 * sizeof(Node));
     if (node == NULL) {
-        perror("Malloc error\n");
         return NULL;
     }
     node->nextNode = NULL;
@@ -22,14 +21,17 @@ Node* createNode() {
 
 Node* fillNodeData(char* line) {
     Node* node = createNode();
+    if (node == NULL) {
+        return NULL;
+    }
 
-    node->data = (char*)calloc((strlen(line) + 1), sizeof(char));
+    node->data = (char*)malloc((strlen(line) + 1));
     if (node->data == NULL) {
         free(node);
         return NULL;
     }
 
-    memcpy(node->data, line, (strlen(line) + 1) * sizeof(char));
+    memcpy(node->data, line, (strlen(line) + 1));
 
     node->nextNode = NULL;
     return node;
