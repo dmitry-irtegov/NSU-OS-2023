@@ -23,6 +23,7 @@ int main(int argc, char **argv) {
             emptyLineCount++;
         }
     }
+
     fclose(fpin);
     printf("Empty lines: %d\n", emptyLineCount);
     return 0;
