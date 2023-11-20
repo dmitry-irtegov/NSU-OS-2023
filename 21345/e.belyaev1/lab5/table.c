@@ -3,15 +3,15 @@
 #include <stdbool.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
-#define LINECOUNT 256
-
-int buildFileMap(off_t* offsets, off_t* lengths, int fileDescriptor, size_t* lineCount) {
+int buildFileMap(off_t* offsets, off_t* lengths, int fileDescriptor, size_t* lineCount, size_t lines_capasity) {
     char buffer[BUFSIZ];
     off_t offset = 0;
     off_t lineIdx = 1;
     off_t bytesRead = 1;
+    off_t cur_line_length = 0;
 
     while (bytesRead > 0) {
         bytesRead = read(fileDescriptor, buffer, BUFSIZ);
@@ -20,11 +20,22 @@ int buildFileMap(off_t* offsets, off_t* lengths, int fileDescriptor, size_t* lin
         }
 
         for (off_t i = 0; i < bytesRead; i++) {
-            lengths[lineIdx]++;
+            cur_line_length++;
             offset++;
             if (buffer[i] == '\n') {
-                offsets[lineIdx] = offset - lengths[lineIdx];
-                lineIdx++;
+                lengths[lineIdx] = cur_line_length;
+                offsets[lineIdx] = offset - cur_line_length;
+                cur_line_length = 0;
+                lineIdx++;                
+                if (lineIdx >= lines_capasity) {
+                    lines_capasity = lines_capasity * 2;
+                    offsets = (off_t*)realloc(offsets, lines_capasity * sizeof(off_t));
+                    lengths = (off_t*)realloc(lengths, lines_capasity * sizeof(off_t));
+                    if (offsets == NULL || lengths == NULL) {
+                        perror("Memory reallocation failed");
+                        return 0;   
+                    }
+                }
             }
         }
     }
@@ -45,12 +56,12 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    off_t lengths[LINECOUNT] = { 0 };
-    off_t offsets[LINECOUNT] = { 0 };
-
     size_t lineCount = 0;
+    size_t lines_capasity = 8;
+    off_t* lengths = (off_t*)malloc(lines_capasity * sizeof(off_t));
+    off_t* offsets = (off_t*)malloc(lines_capasity * sizeof(off_t));
 
-    if (buildFileMap(offsets, lengths, fileDescriptor, &lineCount) != 0){
+    if (buildFileMap(offsets, lengths, fileDescriptor, &lineCount, lines_capasity) != 0){
         perror("failed to read");
         close(fileDescriptor);
         return 1;
@@ -87,15 +98,28 @@ int main(int argc, char* argv[]) {
             break;
         }
 
-        char buffer[BUFSIZ] = { 0 };
 
-        if (read(fileDescriptor, &buffer, lengths[lineToPrint]) == lengths[lineToPrint]) {
-            printf("%s", &buffer);
+        off_t line_len = lengths[lineToPrint];
+        off_t line_remain = line_len - 1;
+        off_t was_readed = 1;
+        char buffer[255];
+        
+        while (was_readed != 0 && line_remain > 0) {
+            if (line_remain < sizeof(buffer)) {
+                was_readed = read(fileDescriptor, buffer, line_remain);
+            }
+            else {
+                was_readed = read(fileDescriptor, buffer, sizeof(buffer) - 1);
+            }
+            if (was_readed == -1) {
+                perror("read error");
+                return 1;
+            }
+            line_remain -= was_readed;
+            buffer[was_readed] = '\0';
+            printf("%s", buffer);
         }
-        else {
-            perror("error reading file");
-            break;
-        }
+        printf("\n");
 
     }
     if (close(fileDescriptor) != 0) {
