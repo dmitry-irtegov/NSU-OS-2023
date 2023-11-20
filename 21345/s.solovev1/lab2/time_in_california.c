@@ -11,8 +11,8 @@ int main() {
         
         putenv("TZ=America/Los_Angeles");
         
-        (void) time( &now );
-        printf("%s", ctime( &now ) );
+        (void) time(&now);
+        printf("%s", ctime(&now));
         sp = localtime(&now);
         
         printf("%02d/%02d/%02d %d:%02d %s\n",
