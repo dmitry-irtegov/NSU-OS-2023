@@ -29,8 +29,8 @@ int main(int argc, char* argv[]) {
             char msgout[] = "I'm tIrEd";
             if (write(fildes[1], msgout, MSGSIZE) == -1) {
                 perror("Error: Child write\n");
+                close (fildes[1]);           
             }
-            close(fildes[1]);
             break;
        
         default:
@@ -38,9 +38,8 @@ int main(int argc, char* argv[]) {
             char msgin[MSGSIZE];
             if (read(fildes[0], msgin, MSGSIZE) == -1) {
                 perror("Error: Parent read\n");
+                close(fildes[0]);
             }
-            close(fildes[0]);
-
             for (int i = 0; i < MSGSIZE - 1; i++) {
                 msgin[i] = toupper(msgin[i]);
             }
