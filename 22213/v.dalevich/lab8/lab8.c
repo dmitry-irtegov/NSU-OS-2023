@@ -51,8 +51,17 @@ int main(int argc, char** argv) {
 
 
     lock.l_type = F_UNLCK;
-    fcntl(fd, F_SETLK, &lock);
-    close(fd);
+
+    if (fcntl(fd, F_SETLK, &lock) == -1) {
+        perror("failed to unlock the file");
+        return 1;
+    }
+    
+    if (close(fd) == -1){
+        perror("failed to close the file");
+        return 1;
+        
+    }
 
     return 0;
 }
