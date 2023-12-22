@@ -10,7 +10,7 @@ typedef struct Node {
 Node* createNode() {
     Node* node = (Node*)malloc(sizeof(Node));
     if (node == NULL) {
-        perror("malloc error");
+        printf("malloc error");
         return NULL;
     }
     node->data = NULL;
