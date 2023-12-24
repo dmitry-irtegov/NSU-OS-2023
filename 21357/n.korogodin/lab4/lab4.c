@@ -10,7 +10,7 @@ typedef struct Node {
 Node* createNode() {
     Node* node = (Node*)malloc(sizeof(Node));
     if (node == NULL) {
-        printf("malloc error");
+        perror("malloc error");
         return NULL;
     }
     node->data = NULL;
@@ -23,7 +23,7 @@ Node* setNodeData(char* str) {
 
     node->data = (char*)calloc((strlen(str) + 1), sizeof(char));
     if (node->data == NULL) {
-        printf("calloc error");
+        perror("calloc error");
         free(node);
         return NULL;
     }
@@ -77,7 +77,7 @@ int main() {
 
     Node* head = createNode();
     if (head == NULL) {
-        printf("couldnt malloc");
+        perror("couldnt malloc");
         return 1;
     }
     Node* currentNode = head;
@@ -90,7 +90,7 @@ int main() {
         currentNode->nextNode = setNodeData(buffer);
         if (currentNode->nextNode == NULL) {
             if (head == NULL) {
-                printf("couldnt malloc");
+                perror("couldnt malloc");
                 freeList(head);
                 return 1;
             }
