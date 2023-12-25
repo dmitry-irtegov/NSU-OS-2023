@@ -74,19 +74,24 @@ void printList(Node* head) {
 
 int main() {
     char buffer[BUFFERSIZE];
+    int buffer_length = 0;
 
     Node* head = createNode();
     if (head == NULL) {
-        perror("couldnt malloc");
         return 1;
     }
     Node* currentNode = head;
     printf("enter lines. to finish input insert '.'\n");
 
     while (fgets(buffer, BUFFERSIZE, stdin) != NULL) {
-        if (buffer[0] == '.') {
+        if (ferror(stdin)) {
+            perror("fgets error");
+        }
+        if (buffer_length == (BUFFERSIZE - 1)) {}
+        else if (buffer[0] == '.') {
             break;
         }
+        buffer_length = strlen(buffer);
         currentNode->nextNode = setNodeData(buffer);
         if (currentNode->nextNode == NULL) {
             if (head == NULL) {
