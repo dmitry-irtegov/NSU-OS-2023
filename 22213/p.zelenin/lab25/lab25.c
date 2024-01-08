@@ -38,8 +38,9 @@ int main() {
         char buf[BUF_LEN];
         while ((bytesRead = read(fd[0], buf, BUF_LEN)) > 0) {
             for (int i = 0; i < bytesRead; ++i) {
-                putchar(toupper(buf[i]));
+                buf[i] = toupper(buf[i]);
             }
+            write(STDOUT_FILENO, buf, BUF_LEN);
         }
         close(fd[0]);
         if (bytesRead < 0) {
