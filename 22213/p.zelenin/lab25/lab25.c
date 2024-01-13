@@ -28,7 +28,10 @@ int main() {
         exit(EXIT_FAILURE);
     case 0:
         close(fd[0]);
-        write(fd[1], string, strlen(string));
+        if (write(fd[1], string, strlen(string)) == -1) {
+            perror("writing from child caused an error ");
+            exit(EXIT_FAILURE);
+        }
         close(fd[1]);
         exit(EXIT_SUCCESS);
 
@@ -40,7 +43,10 @@ int main() {
             for (int i = 0; i < bytesRead; ++i) {
                 buf[i] = toupper(buf[i]);
             }
-            write(STDOUT_FILENO, buf, BUF_LEN);
+            if (write(STDOUT_FILENO, buf, BUF_LEN) == -1) {
+                perror("writing from parent caused an error ");
+                exit(EXIT_FAILURE);
+            }
         }
         close(fd[0]);
         if (bytesRead < 0) {
