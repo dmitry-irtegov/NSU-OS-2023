@@ -4,13 +4,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <fcntl.h>
 
-#define BUF_LEN 20
+#define BUF_LEN 15
 
-int main() {
+int main(int argc, char* argv[]) {
     int fd[2];
     pid_t pid;
-    char string[] = "time slips away, burn out - don't fade\n";
 
     if (pipe(fd) == -1) {
         perror("pipe() caused an error ");
@@ -28,11 +28,27 @@ int main() {
         exit(EXIT_FAILURE);
     case 0:
         close(fd[0]);
-        if (write(fd[1], string, strlen(string)) == -1) {
-            perror("writing from child caused an error ");
+        int textfd;
+        if ((textfd = open(argv[1], O_RDONLY)) == -1) {
+            perror("child could not open the file");
             exit(EXIT_FAILURE);
         }
+        ssize_t bRead;    
+        char string[BUF_LEN];
+
+        while ((bRead = read(textfd, string, BUF_LEN)) > 0) {
+            if (write(fd[1], string, bRead) == -1) {
+                perror("writing from child caused an error ");
+                exit(EXIT_FAILURE);
+            }
+        }
+        if (bRead < 0) {
+            perror("child's read() caused an error ");
+            exit(EXIT_FAILURE);
+        }
+
         close(fd[1]);
+        close(textfd);
         exit(EXIT_SUCCESS);
 
     default:
@@ -43,7 +59,7 @@ int main() {
             for (int i = 0; i < bytesRead; ++i) {
                 buf[i] = toupper(buf[i]);
             }
-            if (write(STDOUT_FILENO, buf, BUF_LEN) == -1) {
+            if (write(STDOUT_FILENO, buf, bytesRead) == -1) {
                 perror("writing from parent caused an error ");
                 exit(EXIT_FAILURE);
             }
