@@ -3,60 +3,60 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
-#include <fcntl.h>
 #include <signal.h>
 #include <string.h>
-#include <netinet/in.h>
 
-#define SERVER_SOCK_FILE "server.sock"
-#define MSGSIZE 20
+#define SOCK_FILE "server.sock"
 
-int file_descriptor = -1;
+int descriptor = -1;
 
-void pipe_sig_handler() {
-    if (file_descriptor != -1) {
-        close(file_descriptor);
-        write(2, "Writing to the socket failure\n", 31);
-    }
-
-    exit(EXIT_FAILURE);
-}
-
-void int_sig_handler() {
-    if (file_descriptor != -1) {
-        close(file_descriptor);
-    }
-    write(1, "\nThat's all\n", 22);
-    
-    exit(EXIT_SUCCESS);
-}
+void sigPipeHandler();
 
 int main() {
-	struct sockaddr_un sock_addr;
-	char msgout[MSGSIZE];
-    signal(SIGPIPE, pipe_sig_handler);
-    signal(SIGINT, int_sig_handler);
+    struct sockaddr_un addr;
+    signal(SIGPIPE, sigPipeHandler);
 
-    if ((file_descriptor = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
-		perror("Cannot create socket");
-		exit(EXIT_FAILURE);
-	}
-
-    memset(&sock_addr, 0, sizeof(sock_addr));
-    sock_addr.sun_family = AF_UNIX;
-    strcpy(sock_addr.sun_path, SERVER_SOCK_FILE);
-    if (connect(file_descriptor, (struct sockaddr *)&sock_addr, sizeof(sock_addr)) == -1) {
-        perror("Connection failure");
+    if ((descriptor = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
+        perror("Cannot create socket");
         exit(EXIT_FAILURE);
     }
 
-    int read_size = 0;
+    addr.sun_family = AF_UNIX;
+    strncpy(addr.sun_path, SOCK_FILE, sizeof(addr.sun_path) - 1);
+
+    if (connect(descriptor, (struct sockaddr *) &addr, sizeof(addr)) == -1) {
+        perror("Connection failure");
+        close(descriptor);
+        exit(EXIT_FAILURE);
+    }
+    printf("Connected to the server\n");
+
+    char msgout[BUFSIZ];
+
     while (1) {
-        read_size = read(0, msgout, MSGSIZE);
-        size_t to_send = read_size < MSGSIZE ? read_size : MSGSIZE;
-        write(file_descriptor, msgout, to_send);
-    };
-    
-    close(file_descriptor);
+        long red;
+        if ((red = read(STDIN_FILENO, msgout, BUFSIZ)) == -1) {
+            perror("Read from buffer error!");
+            close(descriptor);
+            exit(EXIT_FAILURE);
+        }
+
+        size_t dataLength = red < BUFSIZ ? red : BUFSIZ;
+
+        if ((write(descriptor, msgout, dataLength)) == -1) {
+            perror("Write to buffer error!");
+            close(descriptor);
+            exit(EXIT_FAILURE);
+        }
+    }
+    close(descriptor);
 	exit(EXIT_SUCCESS);
+}
+
+void sigPipeHandler() {
+    if (descriptor != -1) {
+        close(descriptor);
+        write(STDERR_FILENO, "Error when writing to the socket!\n", 35);
+    }
+    _exit(EXIT_FAILURE);
 }
