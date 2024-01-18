@@ -30,6 +30,7 @@ int main(int argc, char* argv[]) {
         close(fd[0]);
         int textfd;
         if ((textfd = open(argv[1], O_RDONLY)) == -1) {
+            close(fd[1]);
             perror("child could not open the file");
             exit(EXIT_FAILURE);
         }
@@ -38,11 +39,13 @@ int main(int argc, char* argv[]) {
 
         while ((bRead = read(textfd, string, BUF_LEN)) > 0) {
             if (write(fd[1], string, bRead) == -1) {
+                close(fd[1]);
                 perror("writing from child caused an error ");
                 exit(EXIT_FAILURE);
             }
         }
         if (bRead < 0) {
+            close(fd[1]);
             perror("child's read() caused an error ");
             exit(EXIT_FAILURE);
         }
@@ -60,6 +63,7 @@ int main(int argc, char* argv[]) {
                 buf[i] = toupper(buf[i]);
             }
             if (write(STDOUT_FILENO, buf, bytesRead) == -1) {
+                close(fd[0]);
                 perror("writing from parent caused an error ");
                 exit(EXIT_FAILURE);
             }
