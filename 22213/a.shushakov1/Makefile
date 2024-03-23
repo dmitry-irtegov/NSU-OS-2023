@@ -1,9 +1,7 @@
-.PHONY: clean
-
-a.out:
-	cc lab3.c -v -o a.out
-	chmod u+s a.out
-
-clean:
-	rm -f a.out
-	rm -f myfile
+all: a.out file
+a.out: lab_3.c
+	cc -v lab_3.c
+	chmod 4755 a.out
+file:
+	touch file
+	chmod 600 file
